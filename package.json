@@ -1,0 +1,11 @@
+{
+  "name": "Test Token",
+  "version": "0.0.1",
+  "description": "Token example using truffle v3",
+  
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "truffle": "^3.4.7",
+    "solc" : "^0.4.18"
+  }
+}
