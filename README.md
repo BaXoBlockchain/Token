@@ -14,18 +14,18 @@
 > 
 > Design
 > -------------
-> ####**BackendLedger**
+> **BackendLedger**
 > * The only contract that holds the balances of token holders at any given time
 > * Allow to mint new tokens until minting is finished
 > * Holds operator for doing transfers and owner to control minting
 > * Holds the linked tokens that used the ledger in the past
 > 
-> ####**LinkedLedgerToken**
+> **LinkedLedgerToken**
 > * Token that is connected to a single back end ledger
 > * Allow upgrading by passing the operator rights to the newly upgraded token
 > * The only contract that allows transfers between holders
 > 
-> ####**How it work**
+> **How it work**
 > 1. Owner should create a BackendLedger - by which he is both the owner and operator of the contract.
 > 2. Owner should create a LinkedLedgerToken
 > 3. Owner should call BackendLedger - setOperator(..) with the LinkedLedgerToken address - thus moving the operator rights to the
