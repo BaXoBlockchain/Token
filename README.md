@@ -6,7 +6,7 @@
 > This solution provides a way to connect a single ledger to a chain of linked tokens.  The goal of the design is to allow the
 > development team to upgrade the token in a single atomic action. The
 > action should force all token holders to participate in the upgrade
-> process.  Transactions cost for the tokens will be relativity low and
+> process.  Transactions gas cost for the tokens will be relativity low and
 > close to the standard tokens transfers cost. Anyone can create an
 > upgrade for the token, but only the development team is allowed to
 > connect the upgraded token to the BackendLedger for allowing
