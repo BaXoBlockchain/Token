@@ -2,7 +2,8 @@
 > ===================
 > 
 > Description
-> ---------- This solution provides a way to connect a single ledger to a chain of linked tokens.  The goal of the design is to allow the
+> ---------- 
+> This solution provides a way to connect a single ledger to a chain of linked tokens.  The goal of the design is to allow the
 > development team to upgrade the token in a single atomic action. The
 > action should force all token holders to participate in the upgrade
 > process.  Transactions cost for the tokens will be relativity low and
