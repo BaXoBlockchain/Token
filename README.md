@@ -33,4 +33,10 @@
 > 4. Owner can mint tokens until minting is finished (can also take place after step 1).
 > 5. Anyone can create a new LinkedLedgerToken with upgraded\bug fixes functionalities.
 > 6. Owner is calling the upgradeToken(..) function with the newly upgraded token. All rights are transferred by the smart contract.
+>
+> **Test**
+> 1. Run npm install
+> 2. Run truffle compile
+> 3. Run testrpc
+> 4. Run truffle test
 
