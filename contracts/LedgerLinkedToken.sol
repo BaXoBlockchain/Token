@@ -17,6 +17,11 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
     //Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token
     address public newUpgradedToken;
     
+    string public constant name = "BaXo";
+    string public constant symbol = "BAXO";
+    //uint256 public constant decimals = 8;
+    uint256 public version = 6 * 10 * uint256(2);
+    
     
     //log upgrade event
     event LogUpgrade(address oldToken,address newToken);
@@ -47,7 +52,8 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
     public
     returns(bool)
     {
-       require(newToken.ledgerAddress() == ledgerAddress);
+       require(newToken.ledgerAddress() == ledgerAddress); //must be same ledger
+       require(newToken.version() != version); //must be different version
        ledger.setOperator(newToken);
        newUpgradedToken = newToken;
        LogUpgrade(msg.sender, newToken);
@@ -81,7 +87,7 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
      * @dev Reflect balance of msg.sender from the BackendLedger
      * @param owner Addess for balance check 
     */
-    function getBalanceOf(address owner)
+    function balanceOf(address owner)
     constant
     public
     returns(uint)
@@ -99,5 +105,7 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
     {
         return ledger.balanceOf(msg.sender);
     }
+    
+    
 }
 
