@@ -28,10 +28,5 @@ contract Transferable is  Ownable
         return true;
     }
     
-    function isTransfersAllowed()
-    public
-    returns(bool)
-    {
-        return allowTransfers;
-    }
+   
 }
