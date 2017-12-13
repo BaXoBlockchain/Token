@@ -20,9 +20,9 @@ contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterfa
     //Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token
     address public newUpgradedToken;
     
-    string public constant name = "BaXo";
+    string public constant name = "BaXo Token";
     string public constant symbol = "BAXO";
-    //uint256 public constant decimals = 1;
+    uint256 public constant decimals = 2;
     uint256 public version = 6 * 10 * uint256(2);
     
     
@@ -92,9 +92,7 @@ contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterfa
 
     // SafeMath.sub will throw if there is not enough balance.
     require(ledger.transferFrom(msg.sender,_to,_value));
-    
-    //sync the total supply with ledger
-    totalSupply = ledger.totalSupply();
+       
     
     //Transfer(msg.sender, _to, _value);
     return true;

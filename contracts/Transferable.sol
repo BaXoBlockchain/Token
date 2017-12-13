@@ -4,7 +4,7 @@ import "./Ownable.sol";
 
 /**
  * @title Ownable 
- * @dev Define transferablility properties 
+ * @dev Define transferablility  
  */
 
 contract Transferable is  Ownable

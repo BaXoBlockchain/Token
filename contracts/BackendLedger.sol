@@ -13,7 +13,7 @@ contract BackendLedger is BasicMintable
 {
     using SafeMath for uint256;
     
-    //uint8 public decimals = 1;
+    uint8 public decimals = 2;
     
     // Holds the operator or the ledger
     address public operator;
@@ -39,7 +39,7 @@ contract BackendLedger is BasicMintable
     function BackendLedger()
     public
     {
-        //totalSupply = 55000000000 * 10 ** uint256(decimals);
+        totalSupply = 1 * 10 ** uint256(decimals);
         operator = msg.sender; //set first operator to be owner
         OnOperatorSet(address(0), operator);
         
