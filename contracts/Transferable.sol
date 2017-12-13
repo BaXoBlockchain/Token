@@ -2,6 +2,11 @@ pragma solidity ^0.4.18;
 
 import "./Ownable.sol";
 
+/**
+ * @title Ownable 
+ * @dev Define transferablility properties 
+ */
+
 contract Transferable is  Ownable
 {
     bool public allowTransfers;
