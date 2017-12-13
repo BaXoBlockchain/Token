@@ -2,11 +2,18 @@ pragma solidity ^0.4.18;
 
 
 import "./BasicMintable.sol";
-import "./Transferable.sol";
+import "./LedgerLinkedTokenInterface.sol";
 
+/**
+ * @title BasicMintable
+ * @dev Backend Ledger for all tokens balances and transfers operations
+ * @dev Single ledger that supports mulitple upgradeable tokens balances
+ */
 contract BackendLedger is BasicMintable
 {
     using SafeMath for uint256;
+    
+    //uint8 public decimals = 1;
     
     // Holds the operator or the ledger
     address public operator;
@@ -17,9 +24,9 @@ contract BackendLedger is BasicMintable
     // event on opertor setting
     event OnOperatorSet(address oldOperator, address newOperator);
     
-       /**
-     * @dev operations allowed only by the operator of the ledger
-     */ 
+    /**
+    * @dev operations allowed only by the operator of the ledger
+    */ 
     modifier onlyOperator()
     {
         require(msg.sender == operator);
@@ -32,9 +39,28 @@ contract BackendLedger is BasicMintable
     function BackendLedger()
     public
     {
+        //totalSupply = 55000000000 * 10 ** uint256(decimals);
         operator = msg.sender; //set first operator to be owner
-        OnOperatorSet(address(0), operator );
+        OnOperatorSet(address(0), operator);
+        
     }
+    
+    /**
+   * @dev Function to mint tokens
+   * @param _to The address that will receive the minted tokens.
+   * @param _amount The amount of tokens to mint.
+   * @return A boolean that indicates if the operation was successful.
+   */
+  function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
+      require(owner != operator); //ledger can only mint after operator was defined
+      require(super.mint(_to,_amount));
+      
+      //Update the token's total supply
+      LedgerLinkedTokenInterface token = LedgerLinkedTokenInterface(operator);
+      require(token.syncTotalSupply());
+      
+      return true;
+  }
     
     
     /**
@@ -48,6 +74,11 @@ contract BackendLedger is BasicMintable
     {
         require(_operator != address(0));
         require(_operator != operator);
+        
+        //Check that _operator is implementing LedgerLinkedTokenInterface
+        LedgerLinkedTokenInterface token = LedgerLinkedTokenInterface(_operator);
+        require(token != address(0));
+        
         
         prevLinkedTokens.push(operator); //save prev tokens
         operator = _operator; //give away control
