@@ -1,12 +1,15 @@
 pragma solidity ^0.4.18;
 
-import "./Ownable.sol";
 import "./Transferable.sol";
 import "./BasicToken.sol";
 import "./BackendLedger.sol";
+import "./LedgerLinkedTokenInterface.sol";
 
-
-contract LedgerLinkedToken is BasicToken, Ownable, Transferable
+/**
+ * @title BasicToken , Ownable, Transferable and implements LedgerLinkedTokenInterface 
+ * @dev Updgradeable token, relaying on BackendLedger for balances and transfers
+ */
+contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterface
 {
     //Ledger for the token
     BackendLedger internal ledger;
@@ -19,12 +22,22 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
     
     string public constant name = "BaXo";
     string public constant symbol = "BAXO";
-    //uint256 public constant decimals = 8;
+    //uint256 public constant decimals = 1;
     uint256 public version = 6 * 10 * uint256(2);
     
     
     //log upgrade event
     event LogUpgrade(address oldToken,address newToken);
+    event LogSyncTotalSupply(uint newSupply);
+    
+    /**
+    * @dev Modifier for ledger sender
+    */ 
+    modifier fromLedger()
+    {
+        require(msg.sender == ledgerAddress);
+        _;
+    }
     
      /**
   * @dev Constructor Creating a new token that is connected to a BackendLedger
@@ -38,8 +51,6 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
        //set ledger
        ledger = BackendLedger(existingLedger);
        ledgerAddress = existingLedger;
-       
-       
        
     }     
     
@@ -56,6 +67,10 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
        require(newToken.version() != version); //must be different version
        ledger.setOperator(newToken);
        newUpgradedToken = newToken;
+       
+       //sync the total supply with ledger
+       totalSupply = ledger.totalSupply();
+       LogSyncTotalSupply(totalSupply);
        LogUpgrade(msg.sender, newToken);
        
        return true;
@@ -77,6 +92,9 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
 
     // SafeMath.sub will throw if there is not enough balance.
     require(ledger.transferFrom(msg.sender,_to,_value));
+    
+    //sync the total supply with ledger
+    totalSupply = ledger.totalSupply();
     
     //Transfer(msg.sender, _to, _value);
     return true;
@@ -104,6 +122,20 @@ contract LedgerLinkedToken is BasicToken, Ownable, Transferable
     returns(uint)
     {
         return ledger.balanceOf(msg.sender);
+    }
+    
+    /**
+     * @dev Sync the current total supply with the ledger's total supply
+    */
+    function syncTotalSupply()
+    fromLedger
+    public
+    returns(bool)
+    {
+        //sync the total supply with ledger
+        totalSupply = ledger.totalSupply();
+        LogSyncTotalSupply(totalSupply);
+        return true;
     }
     
     
