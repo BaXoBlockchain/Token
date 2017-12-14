@@ -12,7 +12,7 @@ module.exports = function(deployer,network,accounts) {
 
   ledger = instance;
     console.log("Ledger address: " ,ledger.address);
-    deployer.deploy(LinkedLedgerToken,ledger.address);
+    deployer.deploy(LinkedLedgerToken,ledger.address,1);
     
   });
 }

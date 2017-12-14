@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "./Transferable.sol";
-import "./BasicToken.sol";
+import "./OpenZeppelin/BasicToken.sol";
 import "./BackendLedger.sol";
 import "./LedgerLinkedTokenInterface.sol";
 
@@ -43,11 +43,14 @@ contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterfa
   * @dev Constructor Creating a new token that is connected to a BackendLedger
   * @param existingLedger A BackendLedger that holds token's balances information
   */
-    function LedgerLinkedToken(address existingLedger)
+    function LedgerLinkedToken(address existingLedger,uint newVersion)
     public
     {
        require(existingLedger != address(0));
        
+       //set version
+       version = newVersion;
+
        //set ledger
        ledger = BackendLedger(existingLedger);
        ledgerAddress = existingLedger;

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.18;
 
 
-import './BasicToken.sol';
-import './Ownable.sol';
+import './OpenZeppelin/BasicToken.sol';
+import './OpenZeppelin/Ownable.sol';
 
 
 

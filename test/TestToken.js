@@ -34,18 +34,21 @@ contract('Token interaction', function(accounts) {
         beforeEach("Prepar ledger and a token", function() {
             return BackendLedger.new( { from: devTeam })
                 .then(instance => ledger = instance)
-                .then(() => ledger.mint(user0,mintValue), {from: devTeam})
+
+             /*   .then(() => ledger.mint(user0,mintValue), {from: devTeam})
                 .then(() => ledger.balanceOf(user0), {from: user0})
                 //.then(balance => console.log("Minted balance : ", balance.toNumber()))
-                .then(balance => assert.isAtLeast(balance.toNumber(), 500));
-
+                //.then(balance => assert.isAtLeast(balance.toNumber(), 500));
+                .then(balance => assert.strictEqual(balance.toNumber(),
+                 0,"No minting should be allowed before setting a valid operator"));
+*/
                 
         });
 
         describe("Token interaction", function() {
 
             it("Token interaction 1", function() {
-                return LedgerLinkedToken.new(ledger.address,{from:devTeam})
+                return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
             .then(instance => {
                 token0 = instance;
                 console.log("First token deployed at: ", token0.address);
@@ -61,12 +64,17 @@ contract('Token interaction', function(accounts) {
             })
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                return ledger.mint(user0,mintValue, {from: devTeam});
+            })
+            .then(() => ledger.balanceOf(user0), {from: user0})
+            .then(balance => {
+                assert.isAtLeast(balance.toNumber(), 500);
                 return token0.transfer(user1,50, {from:user0});
             })
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.to,user1,"Failed to transfer to user1 tokens");
                 assert.strictEqual(tx.logs[0].args.value.toNumber(),50,"Failed to transfer to user1 tokens");
-                return LedgerLinkedToken.new(ledger.address,{from:devTeam})
+                return LedgerLinkedToken.new(ledger.address,2,{from:devTeam})
             })
             .then(instance => {
                 token1 = instance;
