@@ -74,7 +74,7 @@ contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterfa
        //sync the total supply with ledger
        totalSupply = ledger.totalSupply();
        LogSyncTotalSupply(totalSupply);
-       LogUpgrade(msg.sender, newToken);
+       LogUpgrade(this, newToken);
        
        return true;
        
