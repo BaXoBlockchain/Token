@@ -22,8 +22,8 @@ contract LedgerLinkedToken is BasicToken, Transferable, LedgerLinkedTokenInterfa
     
     string public constant name = "BaXo Token";
     string public constant symbol = "BAXO";
-    uint256 public constant decimals = 2;
-    uint256 public version = 6 * 10 * uint256(2);
+    uint256 public constant decimals = 4;
+    uint256 public version = 1 * 10 * uint256(2);
     
     
     //log upgrade event
