@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 
-import "./BasicMintable.sol";
+import "./OpenZeppelin/BasicMintable.sol";
 import "./LedgerLinkedTokenInterface.sol";
 
 /**

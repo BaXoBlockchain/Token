@@ -27,14 +27,17 @@ contract('Token Miniting', function(accounts) {
         user2 = accounts[3];
         return web3.eth.getBalancePromise(devTeam)
             .then(balance => assert.isAtLeast(web3.fromWei(balance).toNumber(), 10));
+            console.log("Before operation");
     });
 
     describe("Create Ledger", function() {
      
         beforeEach("Prepar ledger and a token", function() {
             return BackendLedger.new( { from: devTeam })
-            .then(instance => ledger = instance)
-                  return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
+            .then(instance =>{
+              ledger = instance;
+              return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
+            })
             .then(instance => {
                 token0 = instance;
                 console.log("First token deployed at: ", token0.address);
@@ -48,14 +51,16 @@ contract('Token Miniting', function(accounts) {
                 token1 = instance;
                 console.log("Second token deployed at: ", token1.address);
                            
+            });
+
         });
     
 
         describe("Token Minting", function() {
 
             it("Single Minting", function() {
-              return ledger.mint(user0,mintValue, {from: devTeam});
-            })
+              return ledger.mint(user0,mintValue, {from: devTeam})
+            
             .then(() => {
                return ledger.balanceOf(user0, {from: user0});
             })
@@ -68,15 +73,21 @@ contract('Token Miniting', function(accounts) {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
                 return ledger.mint(user0,mintValue, {from: devTeam});
             })
+
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokens to the correct user");
+                assert.strictEqual(tx.logs[0].args.amount.toNumber(),mintValue,"Failed to mint the correct amount");
+                return ledger.balanceOf(user0,{from: devTeam})
+            })
             .then(balance => {
                 assert.isAtLeast(balance.toNumber(), 500);
             })
+
+         });
               
         });
            
-        
-        });
-
+       
     });
 });
 
