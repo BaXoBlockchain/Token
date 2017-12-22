@@ -62,7 +62,7 @@ contract('Token interaction contract', function(accounts) {
             })
             .catch(error => {
                 console.log("Failed to transfer funds before dev team moved operator permissions as expected");
-                return ledger.setOperator(token0.address,{from:devTeam});
+                return ledger.setOperatorToken(token0.address,{from:devTeam});
             })
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                

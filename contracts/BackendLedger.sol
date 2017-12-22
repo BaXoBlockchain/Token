@@ -1,6 +1,5 @@
 pragma solidity ^0.4.18;
 
-
 import "./OpenZeppelin/BasicMintable.sol";
 import "./LedgerLinkedTokenInterface.sol";
 
@@ -13,7 +12,7 @@ contract BackendLedger is BasicMintable
 {
     using SafeMath for uint256;
     
-    uint8 public decimals = 2;
+    uint8 public decimals = 4;
     
     // Holds the operator or the ledger
     address public operator;
@@ -24,6 +23,7 @@ contract BackendLedger is BasicMintable
     // event on opertor setting
     event OnOperatorSet(address oldOperator, address newOperator);
     
+
     /**
     * @dev operations allowed only by the operator of the ledger
     */ 
@@ -61,32 +61,27 @@ contract BackendLedger is BasicMintable
       
       return true;
   }
-    
-    
-    /**
+
+   /**
      * @dev Sets new operator
-     * @param _operator New oprator to update
+     * @param token New oprator to update
      */ 
-    function setOperator(address _operator)
+    function setOperatorToken(LedgerLinkedTokenInterface token)
     onlyOperator
     public
     returns(bool)
     {
-        require(_operator != address(0));
-        require(_operator != operator);
-        
-        //Check that _operator is implementing LedgerLinkedTokenInterface
-        LedgerLinkedTokenInterface token = LedgerLinkedTokenInterface(_operator);
         require(token != address(0));
-        
-        
+        require(token != operator);
+        require(token.isLedgerLinkedToken());
+            
         prevLinkedTokens.push(operator); //save prev tokens
-        operator = _operator; //give away control
+        operator = token; //give away control
         
-        
-        OnOperatorSet(msg.sender, operator);
+        OnOperatorSet(msg.sender, token);
         return true;
     }
+        
     
     /**
    * @dev Checks modifier and allows transfer if tokens are not locked.

@@ -1,6 +1,6 @@
 var BackendLedger = artifacts.require("./BackendLedger.sol");
 var LinkedLedgerToken = artifacts.require("./LedgerLinkedToken.sol");
-
+//var NoInterfaceToken = artifacts.require("../test/TestNoInterfaceToken.sol");
 
 module.exports = function(deployer,network,accounts) {
   let ledger,token;
@@ -14,6 +14,6 @@ module.exports = function(deployer,network,accounts) {
     console.log("Ledger address: " ,ledger.address);
     deployer.deploy(LinkedLedgerToken,ledger.address,1);
     
-  });
+   });
 }
      

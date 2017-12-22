@@ -1,13 +1,20 @@
 pragma solidity ^0.4.18;
 
+/* import "./Transferable.sol";
+import "./OpenZeppelin/BasicToken.sol";
 import "./BackendLedger.sol";
-import "./LedgerLinkedTokenInterface.sol";
+import "./LedgerLinkedToken.sol";
+ */
+import "../contracts/Transferable.sol";
+import "../contracts/OpenZeppelin/BasicToken.sol";
+import "../contracts/BackendLedger.sol";
+import "../contracts/LedgerLinkedToken.sol";
+
 
 /**
- * @title BasicToken , Ownable, Transferable and implements LedgerLinkedTokenInterface 
- * @dev Updgradeable token, relaying on BackendLedger for balances and transfers
+ * @title Testing contract for interface implementation
  */
-contract LedgerLinkedToken is LedgerLinkedTokenInterface
+contract TestNoInterfaceToken is BasicToken, Transferable
 {
     //Ledger for the token
     BackendLedger internal ledger;
@@ -27,6 +34,7 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
     //log upgrade event
     event LogUpgrade(address oldToken,address newToken);
     event LogSyncTotalSupply(uint newSupply);
+    event LogNewToken(address newToken,address ledger);
     
     /**
     * @dev Modifier for ledger sender
@@ -41,7 +49,7 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
   * @dev Constructor Creating a new token that is connected to a BackendLedger
   * @param existingLedger A BackendLedger that holds token's balances information
   */
-    function LedgerLinkedToken(address existingLedger,uint newVersion)
+    function TestNoInterfaceToken(address existingLedger,uint newVersion)
     public
     {
        require(existingLedger != address(0));
@@ -52,6 +60,9 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
        //set ledger
        ledger = BackendLedger(existingLedger);
        ledgerAddress = existingLedger;
+
+       //log the event
+       LogNewToken(this,ledgerAddress);
        
     }     
     

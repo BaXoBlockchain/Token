@@ -15,10 +15,11 @@ if (typeof web3.eth.getAccountsPromise === "undefined") {
 
 const BackendLedger = artifacts.require("./BackendLedger.sol");
 const LedgerLinkedToken = artifacts.require("./LedgerLinkedToken.sol");
+const TestNoInterfaceToken = artifacts.require("./TestNoInterfaceToken.sol");
 
 contract('Token Miniting', function(accounts) {
 
-    let ledger, token0, token1,
+    let ledger, token0, token1, noIntefaceToken,
         devTeam, user0, user1,user2;
 
     let isTestRPC;
@@ -75,7 +76,7 @@ contract('Token Miniting', function(accounts) {
             .then(() => assert.isFalse(true,"Should fail to mint without linked token"))
             .catch(error => {
                 console.log("Catching error as expected - ledger is not link to any token");
-                return ledger.setOperator(token0.address,{from:devTeam});
+                return ledger.setOperatorToken(token0.address,{from:devTeam});
             })
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
@@ -99,7 +100,7 @@ contract('Token Miniting', function(accounts) {
               if (!isTestRPC) this.skip();
 
               //Set operator
-              return ledger.setOperator(token0.address,{from:devTeam})
+              return ledger.setOperatorToken(token0.address,{from:devTeam})
              .then(tx => {
               assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
               this.slow(300000);
@@ -133,6 +134,36 @@ contract('Token Miniting', function(accounts) {
             });
 
             });
+
+            it("Interface Test", function() {
+                return TestNoInterfaceToken.new(ledger.address,5,{from:devTeam})
+            .then(instance => {
+                noIntefaceToken = instance;
+                console.log("Create new token without inteface at ", noIntefaceToken.address);
+                return token0.isLedgerLinkedToken({from:devTeam})
+            })
+            .then(res => {
+                assert.isTrue(res,"Should implement interface");
+                return noIntefaceToken.isLedgerLinkedToken({from:devTeam})
+            })
+            .then(() => assert.isFalse(true,"Shouldn't implement interface"))
+            .catch(error => {
+                console.log("No interface was implemented as expected");
+                return ledger.setOperatorToken(noIntefaceToken.address,{from:devTeam});
+            })  
+            .then(() => assert.isFalse(true,"Should faild to set a new operator token without implementing the interface"))
+            .catch( error => {
+                console.log("Successfully failed to set new operator with an invalid interface");
+                return ledger.setOperatorToken(token0.address,{from:devTeam});
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                console.log("Valid operator token was set successfully");
+            })
+                            
+            });    
+            
+            
                         
             
         });
