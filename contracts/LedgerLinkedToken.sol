@@ -21,12 +21,13 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
     string public constant name = "BaXo Token";
     string public constant symbol = "BAXO";
     uint256 public constant decimals = 4;
-    uint256 public version = 1 * 10 * uint256(2);
+    uint256 public version = 1 * 10 * uint256(3);
     
     
     //log upgrade event
     event LogUpgrade(address oldToken,address newToken);
     event LogSyncTotalSupply(uint newSupply);
+    event LogNewToken(address newToken,address ledger, uint version);
     
     /**
     * @dev Modifier for ledger sender
@@ -52,6 +53,9 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
        //set ledger
        ledger = BackendLedger(existingLedger);
        ledgerAddress = existingLedger;
+
+       //log 
+       LogNewToken(this,ledger,version);
        
     }     
     
@@ -65,7 +69,7 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
     returns(bool)
     {
        require(newToken.ledgerAddress() == ledgerAddress); //must be same ledger
-       require(newToken.version() != version); //must be different version
+       require(newToken.version() > version); //must be different version
        ledger.setOperatorToken(newToken);
        newUpgradedToken = newToken;
        

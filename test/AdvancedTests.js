@@ -17,7 +17,7 @@ const BackendLedger = artifacts.require("./BackendLedger.sol");
 const LedgerLinkedToken = artifacts.require("./LedgerLinkedToken.sol");
 const TestNoInterfaceToken = artifacts.require("./TestNoInterfaceToken.sol");
 
-contract('Token Miniting', function(accounts) {
+contract('Token Advanced Tests', function(accounts) {
 
     let ledger, token0, token1, noIntefaceToken,
         devTeam, user0, user1,user2;
@@ -84,7 +84,7 @@ contract('Token Miniting', function(accounts) {
             })
 
             .then(tx => {
-                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokens to the correct user");
+                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokensCreation to the correct user");
                 assert.strictEqual(tx.logs[0].args.amount.toNumber(),mintValue,"Failed to mint the correct amount");
                 return ledger.balanceOf(user0,{from: devTeam})
             })
@@ -94,7 +94,7 @@ contract('Token Miniting', function(accounts) {
 
          });
 
-        const count = 120;
+        const count = 1;
             it("Stress minting", function() {
 
               if (!isTestRPC) this.skip();
@@ -161,9 +161,88 @@ contract('Token Miniting', function(accounts) {
                 console.log("Valid operator token was set successfully");
             })
                             
-            });    
+            });  
+            upgradeCount = 20;
+            it("Upgrade token stress Test", function() {
+               let token3;
+               const upgrades = [];
+               const tokensCreation = [];
+               const tokensInstances = [];
+                                
+               return ledger.setOperatorToken(token0.address,{from:devTeam})
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                this.slow(300000);
+                                              
+                for (let i = 1; i <= upgradeCount; i++) {
+                    tokensCreation.push(() => {
+                    process.stderr.write("Creating new token interation " + i + "          " + '\r');
+                    return LedgerLinkedToken.new(ledger.address,i*100,{from:devTeam});
+                    });
+                }
+                                                
+                return Promise.allSeq(tokensCreation)
+            })
+            .then(txs => {
+                 console.log("Starting Token initialzation...");
+                 Promise.allSeq(txs.map((tx,i) => () =>{
+                    //console.log("new Token: " , tx.address);
+                    
+                    if (i ==0) //upgrade first token - from token0
+                    {
+                       console.log("Push first token"); 
+                       tokensInstances[0] = tx;
+                       upgrades.push(() => {
+                        return token0.upgradeToken(tokensInstances[0].address,{from:devTeam});
+                       });
+                    }
+                    else //upgrade all other tokens
+                    { 
+                        tokensInstances[i] = tx;
+                        upgrades.push(() => {
+                        process.stderr.write("Deploying upgrade interation " + (i+1) + "          " + '\r');
+                        return tokensInstances[i-1].upgradeToken(tokensInstances[i].address,{from:devTeam});
+                        });
+                    }
+
+                    return i;
+                   
+                 }))
+
+             
             
+            .then(countOftokensCreation=> {
+                //continue after all tokensCreation have been deployed
+                assert.strictEqual(countOftokensCreation.length,upgradeCount,"Invalid upgrade count");
+                
+                console.log(" Done creation - Starting Token upgrade sequence...");
+                console.log("upgrades count " , upgrades.length);
+                console.log("tokens instance count " , tokensInstances.length);
+                               
+                return Promise.allSeq(upgrades)
+                
+            })
             
+            .then(txs => { 
+                 Promise.allSeq(txs.map((tx,i) => () =>{
+                 assert.isAtLeast(tx.logs[0].args.newSupply,1,"Invalid amount of upgrade");
+                 if (tx.logs[1].args.oldToken != token0.address) //skip first token
+                 assert.strictEqual(tx.logs[1].args.oldToken, tokensInstances[i-1].address,"Invalid old token");
+                 assert.strictEqual(tx.logs[1].args.newToken, tokensInstances[i].address,"Invalid old token");
+                      return i;   
+                 }))
+
+
+            .then(countOfUpgrades=> {
+                //continue after all tokensCreation have been deployed
+                assert.strictEqual(countOfUpgrades.length,upgradeCount,"Invalid number of upgrades");
+                console.log("All upgrades were successfully deployed");
+          
+            })
+            })
+            })    
+               
+            }); //close it
                         
             
         });
