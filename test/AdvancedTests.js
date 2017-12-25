@@ -107,6 +107,7 @@ contract('Token Advanced Tests', function(accounts) {
               const logValue = [];
               let overallMinting =0;
               let totalMintingCheck =0;
+              let testPass = false;
               for (let i = 1; i <= count; i++) {
               logValue.push(() => {
                 process.stderr.write("Minting interation " + i + "          " + '\r');
@@ -162,7 +163,7 @@ contract('Token Advanced Tests', function(accounts) {
             })
                             
             });  
-            upgradeCount = 20;
+            upgradeCount = 50;
             it("Upgrade token stress Test", function() {
                let token3;
                const upgrades = [];
@@ -185,7 +186,7 @@ contract('Token Advanced Tests', function(accounts) {
             })
             .then(txs => {
                  console.log("Starting Token initialzation...");
-                 Promise.allSeq(txs.map((tx,i) => () =>{
+                 return Promise.allSeq(txs.map((tx,i) => () =>{
                     //console.log("new Token: " , tx.address);
                     
                     if (i ==0) //upgrade first token - from token0
@@ -224,7 +225,7 @@ contract('Token Advanced Tests', function(accounts) {
             })
             
             .then(txs => { 
-                 Promise.allSeq(txs.map((tx,i) => () =>{
+                 return Promise.allSeq(txs.map((tx,i) => () =>{
                  assert.isAtLeast(tx.logs[0].args.newSupply,1,"Invalid amount of upgrade");
                  if (tx.logs[1].args.oldToken != token0.address) //skip first token
                  assert.strictEqual(tx.logs[1].args.oldToken, tokensInstances[i-1].address,"Invalid old token");
@@ -237,11 +238,35 @@ contract('Token Advanced Tests', function(accounts) {
                 //continue after all tokensCreation have been deployed
                 assert.strictEqual(countOfUpgrades.length,upgradeCount,"Invalid number of upgrades");
                 console.log("All upgrades were successfully deployed");
-          
+                testPass = true;
             })
+            .then(() => assert.isTrue(testPass,"Test should pass"));
             })
-            })    
+            
+            })
                
+            }); //close it
+
+            it("Upgrade token version Test", function() {
+             
+             let tokenSameVersion, tokenSmallerVersion;
+             return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
+            .then(instance => {
+                tokenSameVersion = instance;
+                return token0.upgradeToken(tokenSameVersion.address,{from:devteam});
+            })
+            .then(()=>assert.isTrue(false,"Should fail on upgrade attempt with the same version"))
+            .catch(error=>{
+                console.log("Failed to upgrade token with the same version as expected");
+        /*        return token0.upgradeToken(token1.address,{from:devTeam})
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[1].args.newToken,token1.address,"Failed to upgrade valid upgradeable token");
+       */         //return LedgerLinkedToken.new(ledger.address,)
+            })
+
+               //
+
             }); //close it
                         
             
