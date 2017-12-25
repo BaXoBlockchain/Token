@@ -12,15 +12,16 @@ contract BackendLedger is BasicMintable
 {
     using SafeMath for uint256;
     
-    uint8 public decimals = 4;
+    /** Holds decimals for token */
+    uint8 public decimals = 8;
     
-    // Holds the operator or the ledger
+    /** Holds the operator or the ledger */
     address public operator;
     
-    //previous linked tokens
+    /** Previous linked tokens */
     address[] public prevLinkedTokens;
     
-    // event on opertor setting
+    /** event on opertor setting */
     event OnOperatorSet(address oldOperator, address newOperator);
     
 
@@ -48,7 +49,7 @@ contract BackendLedger is BasicMintable
     /**
    * @dev Function to mint tokens
    * @param _to The address that will receive the minted tokens.
-   * @param _amount The amount of tokens to mint.
+   * @param _amount The amount of tokens to mint in full size.
    * @return A boolean that indicates if the operation was successful.
    */
   function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
@@ -81,21 +82,7 @@ contract BackendLedger is BasicMintable
         OnOperatorSet(msg.sender, token);
         return true;
     }
-        
-    
-    /**
-   * @dev Checks modifier and allows transfer if tokens are not locked.
-   * @param _to The address that will recieve the tokens.
-   * @param _value The amount of tokens to be transferred.
-   */
-  function transfer(address _to, uint _value) 
-  onlyOperator
-  public
-  returns(bool)
-  {
-    return super.transfer(_to, _value);
-  }
-
+  
   /**
   * @dev Checks modifier and allows transfer if tokens are not locked.
   * @param _from The address that will send the tokens.

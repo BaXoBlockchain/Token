@@ -94,7 +94,7 @@ contract('Token Advanced Tests', function(accounts) {
 
          });
 
-        const count = 1;
+        const count = 200;
             it("Stress minting", function() {
 
               if (!isTestRPC) this.skip();
@@ -163,7 +163,7 @@ contract('Token Advanced Tests', function(accounts) {
             })
                             
             });  
-            upgradeCount = 1;
+            upgradeCount = 150;
             it("Upgrade token stress Test", function() {
                let token3;
                const upgrades = [];

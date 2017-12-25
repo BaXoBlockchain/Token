@@ -9,22 +9,22 @@ import "./LedgerLinkedTokenInterface.sol";
  */
 contract LedgerLinkedToken is LedgerLinkedTokenInterface
 {
-    //Ledger for the token
+    /**Ledger for the token */
     BackendLedger internal ledger;
     
-    //Ledger address for the token
+    /*Ledger address for the token */
     address public ledgerAddress;
     
-    //Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token
+    /*Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token */
     address public newUpgradedToken;
     
+    /*Holds token's properties */
     string public constant name = "BaXo Token";
     string public constant symbol = "BAXO";
-    uint256 public constant decimals = 4;
-    uint256 public version = 1 * 10 * uint256(3);
+    uint256 public version;
     
     
-    //log upgrade event
+    /** log upgrade events */
     event LogUpgrade(address oldToken,address newToken);
     event LogSyncTotalSupply(uint newSupply);
     event LogNewToken(address newToken,address ledger, uint version);
@@ -38,10 +38,10 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
         _;
     }
     
-     /**
-  * @dev Constructor Creating a new token that is connected to a BackendLedger
-  * @param existingLedger A BackendLedger that holds token's balances information
-  */
+    /**
+    * @dev Constructor Creating a new token that is connected to a BackendLedger
+    * @param existingLedger A BackendLedger that holds token's balances information
+    */
     function LedgerLinkedToken(address existingLedger,uint newVersion)
     public
     {

@@ -9,16 +9,24 @@ import "./OpenZeppelin/Ownable.sol";
 
 contract Transferable is  Ownable
 {
+    /* Holds whether transfers are allowed */
     bool public allowTransfers;
     
+    /* Log Events */
     event OnSetTransfer(address sender,bool newState);
     
+    /** @dev Modifier for allow transfers 
+    */
     modifier canTransfer()
     {
         require(allowTransfers);
         _;
     }
-    
+
+    /**
+     * @dev Sets whether transfers are allows
+     * @param isAllowed whether transfers are allowed
+    */
     function setTransfers(bool isAllowed)
     onlyOwner
     public
