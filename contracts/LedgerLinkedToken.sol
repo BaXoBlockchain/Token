@@ -70,7 +70,7 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
     {
        require(newToken.ledgerAddress() == ledgerAddress); //must be same ledger
        require(newToken.version() > version); //must be different version
-       ledger.setOperatorToken(newToken);
+       require(ledger.setOperatorToken(newToken));
        newUpgradedToken = newToken;
        
        //sync the total supply with ledger

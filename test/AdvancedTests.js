@@ -163,7 +163,7 @@ contract('Token Advanced Tests', function(accounts) {
             })
                             
             });  
-            upgradeCount = 50;
+            upgradeCount = 1;
             it("Upgrade token stress Test", function() {
                let token3;
                const upgrades = [];
@@ -250,7 +250,11 @@ contract('Token Advanced Tests', function(accounts) {
             it("Upgrade token version Test", function() {
              
              let tokenSameVersion, tokenSmallerVersion;
-             return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
+              return ledger.setOperatorToken(token0.address,{from:devTeam})
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                return LedgerLinkedToken.new(ledger.address,1,{from:devTeam})
+            })
             .then(instance => {
                 tokenSameVersion = instance;
                 return token0.upgradeToken(tokenSameVersion.address,{from:devteam});
@@ -258,18 +262,22 @@ contract('Token Advanced Tests', function(accounts) {
             .then(()=>assert.isTrue(false,"Should fail on upgrade attempt with the same version"))
             .catch(error=>{
                 console.log("Failed to upgrade token with the same version as expected");
-        /*        return token0.upgradeToken(token1.address,{from:devTeam})
+                return token0.upgradeToken(token1.address,{from:devTeam})
             })
             .then(tx => {
                 assert.strictEqual(tx.logs[1].args.newToken,token1.address,"Failed to upgrade valid upgradeable token");
-       */         //return LedgerLinkedToken.new(ledger.address,)
+                return LedgerLinkedToken.new(ledger.address,0,{from:devTeam})
+            })
+            .then(instance => {
+                tokenSmallerVersion = instance;
+                return token1.upgradeToken(tokenSmallerVersion.address,{from:devTeam})
+            })
+            .then(()=>assert.isTrue(false,"Should fail on upgrade attempt with the samller version"))
+            .catch(error=>{
+                console.log("Failed to upgrade token with smaller version as expected");
             })
 
-               //
-
             }); //close it
-                        
-            
         });
 
            
