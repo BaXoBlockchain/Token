@@ -22,7 +22,8 @@ contract('Premission test contract', function(accounts) {
         
     const mintValue = randomIntIn(500, 1000);
     const transferValue = randomIntIn(1, 100);
-    
+    const address0 = "0x0000000000000000000000000000000000000000";
+
    before("should prepare", function() {
         assert.isAtLeast(accounts.length, 4);
         devTeam = accounts[0];
@@ -55,7 +56,11 @@ contract('Premission test contract', function(accounts) {
             .then(instance => {
                 token1 = instance;
                 console.log("Second token deployed at: ", token1.address);
-                           
+                return ledger.setOperatorToken(token0.address,{from:devTeam})
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                console.log("Set operator: ", token0.address);
             });
 
         });
@@ -64,7 +69,21 @@ contract('Premission test contract', function(accounts) {
         describe("Test basic permissions", function() {
 
             it("Test Minting permissions", function() {
-            
+/*              return Promise.allNamed({
+                    isUser0: () => ledger.mint(user0,mintValue, {from: user0}),
+                    isUser1: () => ledger.mint(user0,mintValue, {from: user1}),
+                    isToken0: () => ledger.mint(user0,mintValue, {from: token0}),
+                    isToken1: () => ledger.mint(user0,mintValue, {from: token1}),
+                    address0: () => regulator.mint(address0)
+                })
+                .then(trueFalse => {
+                    assert.isFalse(trueFalse.isUser0);
+                    assert.isFalse(trueFalse.isUser1);
+                    assert.isFalse(trueFalse.isToken0);
+                    assert.isFalse(trueFalse.isToken1);
+                    assert.isFalse(trueFalse.zero);
+                });
+        });*/
               return ledger.setOperatorToken(token0.address,{from:devTeam})
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
