@@ -68,22 +68,8 @@ contract('Premission test contract', function(accounts) {
 
         describe("Test basic permissions", function() {
 
-            it("Test Minting permissions", function() {
-/*              return Promise.allNamed({
-                    isUser0: () => ledger.mint(user0,mintValue, {from: user0}),
-                    isUser1: () => ledger.mint(user0,mintValue, {from: user1}),
-                    isToken0: () => ledger.mint(user0,mintValue, {from: token0}),
-                    isToken1: () => ledger.mint(user0,mintValue, {from: token1}),
-                    address0: () => regulator.mint(address0)
-                })
-                .then(trueFalse => {
-                    assert.isFalse(trueFalse.isUser0);
-                    assert.isFalse(trueFalse.isUser1);
-                    assert.isFalse(trueFalse.isToken0);
-                    assert.isFalse(trueFalse.isToken1);
-                    assert.isFalse(trueFalse.zero);
-                });
-        });*/
+         it("Test Minting permissions", function() {
+
               return ledger.setOperatorToken(token0.address,{from:devTeam})
             .then(tx => {
                 assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
@@ -119,7 +105,142 @@ contract('Premission test contract', function(accounts) {
             })
 
          });
+
+          it("Test Transfer ledger permissions", function() {
+
+              return ledger.setOperatorToken(token0.address,{from:devTeam})
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                return ledger.mint(user0,mintValue, {from: devTeam});
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokensCreation to the correct user");
+                assert.strictEqual(tx.logs[0].args.amount.toNumber(),mintValue,"Failed to mint the correct amount");
+                return ledger.balanceOf(user0,{from: devTeam})
+            })
+            .then(balance => {
+                assert.isAtLeast(balance.toNumber(), 500);
+                return ledger.transferFrom(user0,user1,mintValue, {from: user0});
+            })
+            .then(() => assert.isFalse(true,"Should fail to transfer funds with invalid premissions user0"))
+            .catch(error => {
+                console.log("Catching error as expected - user0 premissions are invalid");
+                return ledger.transferFrom(user0,user1,mintValue, {from: user1});
+            })
+            .then(() => assert.isFalse(true,"Should fail to transfer funds with invalid premissions user1"))
+            .catch(error => {
+                console.log("Catching error as expected - user1 premissions are invalid");
+                return ledger.transferFrom(user0,user1,mintValue, {from: devteam});
+            })
+            .then(() => assert.isFalse(true,"Should fail to transfer funds with invalid premissions devteam"))
+            .catch(error => {
+                console.log("Catching error as expected - devteam premissions are invalid");
+                return ledger.transferFrom(user0,user1,mintValue, {from: token1.address});
+            })
+            .then(() => assert.isFalse(true,"Should fail to transfer funds with invalid premissions token1"))
+            .catch(error => {
+                console.log("Catching error as expected - token1 premissions are invalid");
+                return ledger.transferFrom(user0,user1,mintValue,{from:token0.address});
+            })
+            .then(() => assert.isFalse(true,"Should fail to transfer funds without tokens private key"))
+            .catch(error => {
+                assert.include(error.toString(),"could not unlock signer account", "should fail on missing private key")
+                console.log("Catching error as expected - token0 private key is missing");
+            });
+         }); //close it
+
+           it("Test set operator ledger permissions", function() {
+
+              return ledger.setOperatorToken(token0.address,{from:devTeam})
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                return ledger.mint(user0,mintValue, {from: devTeam});
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokensCreation to the correct user");
+                assert.strictEqual(tx.logs[0].args.amount.toNumber(),mintValue,"Failed to mint the correct amount");
+                return ledger.balanceOf(user0,{from: devTeam})
+            })
+            .then(balance => {
+                assert.isAtLeast(balance.toNumber(), 500);
+                return ledger.setOperatorToken(token1, {from: user0});
+            })
+            .then(() => assert.isFalse(true,"Should fail set new operator funds with invalid premissions user0"))
+            .catch(error => {
+                console.log("Catching error as expected - user0 premissions are invalid");
+                return ledger.setOperatorToken(token1, {from: user1});
+            })
+            .then(() => assert.isFalse(true,"Should fail set new operator funds with invalid premissions user1"))
+            .catch(error => {
+                console.log("Catching error as expected - user1 premissions are invalid");
+                return ledger.setOperatorToken(token1, {from: devteam});
+            })
+            .then(() => assert.isFalse(true,"Should fail set new operator funds with invalid premissions devteam"))
+            .catch(error => {
+                console.log("Catching error as expected - devteam premissions are invalid");
+                return ledger.setOperatorToken(token1, {from: token1.address});
+            })
+            .then(() => assert.isFalse(true,"Should fail set new operator funds with invalid premissions token1"))
+            .catch(error => {
+                console.log("Catching error as expected - token1 premissions are invalid");
+            });
+         }); //close it
+
+           it("Test upgrade token invalid permissions", function() {
+
+              return ledger.setOperatorToken(token0.address,{from:devTeam})
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.newOperator,token0.address,"ledger operator permission set transfers has failed");                
+                return ledger.mint(user0,mintValue, {from: devTeam});
+            })
+            .then(tx => {
+                assert.strictEqual(tx.logs[0].args.to,user0,"Failed to mint tokensCreation to the correct user");
+                assert.strictEqual(tx.logs[0].args.amount.toNumber(),mintValue,"Failed to mint the correct amount");
+                return ledger.balanceOf(user0,{from: devTeam})
+            })
+            .then(balance => {
+                assert.isAtLeast(balance.toNumber(), 500);
+                return token0.upgradeToken(token1.address, {from: user0});
+            })
+            .then(() => assert.isFalse(true,"Should fail to upgrade token with invalid premissions user0"))
+            .catch(error => {
+                console.log("Catching error as expected - user0 premissions are invalid");
+                return token0.upgradeToken(token1.address, {from: user1});
+            })
+            .then(() => assert.isFalse(true,"Should fail to upgrade token with invalid premissions user1"))
+            .catch(error => {
+                console.log("Catching error as expected - user1 premissions are invalid");
+                return token0.upgradeToken(token1.address, {from: devteam});
+            })
+            .then(() => assert.isFalse(true,"Should fail to upgrade token with invalid premissions devteam"))
+            .catch(error => {
+                console.log("Catching error as expected - devteam premissions are invalid");
+                return token0.upgradeToken(token1.address, {from: token1.address});
+            })
+            .then(() => assert.isFalse(true,"Should fail to upgrade token with invalid premissions token1"))
+            .catch(error => {
+                console.log("Catching error as expected - token1 premissions are invalid");
+            });
+         }); //close it
     });
     });
 
 });
+
+
+
+/*              return Promise.allNamed({
+                    isUser0: () => ledger.mint(user0,mintValue, {from: user0}),
+                    isUser1: () => ledger.mint(user0,mintValue, {from: user1}),
+                    isToken0: () => ledger.mint(user0,mintValue, {from: token0}),
+                    isToken1: () => ledger.mint(user0,mintValue, {from: token1}),
+                    address0: () => regulator.mint(address0)
+                })
+                .then(trueFalse => {
+                    assert.isFalse(trueFalse.isUser0);
+                    assert.isFalse(trueFalse.isUser1);
+                    assert.isFalse(trueFalse.isToken0);
+                    assert.isFalse(trueFalse.isToken1);
+                    assert.isFalse(trueFalse.zero);
+                });
+        });*/
