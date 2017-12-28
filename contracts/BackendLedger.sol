@@ -13,7 +13,7 @@ contract BackendLedger is BasicMintable
     using SafeMath for uint256;
     
     /** Holds decimals for token */
-    uint8 public decimals = 8;
+    uint8 public decimals = 18;
     
     /** Holds the operator or the ledger */
     address public operator;
