@@ -23,7 +23,6 @@ contract BackendLedger is BasicMintable
     
     /** event on opertor setting */
     event OnOperatorSet(address oldOperator, address newOperator);
-    
 
     /**
     * @dev operations allowed only by the operator of the ledger
@@ -75,6 +74,9 @@ contract BackendLedger is BasicMintable
         require(token != address(0));
         require(token != operator);
         require(token.isLedgerLinkedToken());
+
+        //sync the token supply value
+        token.syncTotalSupply();
             
         prevLinkedTokens.push(operator); //save prev tokens
         operator = token; //give away control
