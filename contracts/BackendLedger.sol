@@ -4,7 +4,7 @@ import "./OpenZeppelin/BasicMintable.sol";
 import "./LedgerLinkedTokenInterface.sol";
 
 /**
- * @title BasicMintable
+ * @title BackendLedger
  * @dev Backend Ledger for all tokens balances and transfers operations
  * @dev Single ledger that supports mulitple upgradeable tokens balances
  */
@@ -23,6 +23,7 @@ contract BackendLedger is BasicMintable
     
     /** event on opertor setting */
     event OnOperatorSet(address oldOperator, address newOperator);
+    
 
     /**
     * @dev operations allowed only by the operator of the ledger
@@ -39,7 +40,7 @@ contract BackendLedger is BasicMintable
     function BackendLedger()
     public
     {
-        totalSupply = 1 * 10 ** uint256(decimals);
+        //totalSupply = 1 * 10 ** uint256(decimals);
         operator = msg.sender; //set first operator to be owner
         OnOperatorSet(address(0), operator);
         
@@ -74,16 +75,31 @@ contract BackendLedger is BasicMintable
         require(token != address(0));
         require(token != operator);
         require(token.isLedgerLinkedToken());
-
-        //sync the token supply value
+        
+        //sync with token supply
         token.syncTotalSupply();
             
         prevLinkedTokens.push(operator); //save prev tokens
         operator = token; //give away control
         
         OnOperatorSet(msg.sender, token);
+        
+       
         return true;
     }
+    
+ /**
+  * @dev transfer token for a specified address only for the owner
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
+  */
+  function transfer(address _to, uint256 _value)
+  public
+  onlyOwner
+  returns (bool) 
+  {
+      return super.transfer(_to,_value);
+  }
   
   /**
   * @dev Checks modifier and allows transfer if tokens are not locked.
@@ -109,4 +125,3 @@ contract BackendLedger is BasicMintable
     
     
 }
-    

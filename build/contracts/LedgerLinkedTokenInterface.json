@@ -22,7 +22,7 @@
       "outputs": [
         {
           "name": "",
-          "type": "bool"
+          "type": "uint8"
         }
       ],
       "payable": false,
@@ -61,8 +61,8 @@
       "constant": false,
       "inputs": [
         {
-          "name": "isAllowed",
-          "type": "bool"
+          "name": "newValue",
+          "type": "uint256"
         }
       ],
       "name": "setTransfers",
@@ -157,7 +157,7 @@
         {
           "indexed": false,
           "name": "newState",
-          "type": "bool"
+          "type": "uint256"
         }
       ],
       "name": "OnSetTransfer",
@@ -206,5 +206,5 @@
   "unlinked_binary": "0x",
   "networks": {},
   "schema_version": "0.0.5",
-  "updated_at": 1515321576331
+  "updated_at": 1516209286343
 }

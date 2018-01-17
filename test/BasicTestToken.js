@@ -54,10 +54,10 @@ contract('Token interaction contract', function(accounts) {
             .then(instance => {
                 token0 = instance;
                 console.log("First token deployed at: ", token0.address);
-                return token0.setTransfers(true, {from:devTeam});
+                return token0.setTransfers(2, {from:devTeam});
             })
             .then(tx => {
-                assert.strictEqual(tx.logs[0].args.newState,true,"Token0 set transfers has failed");
+                assert.strictEqual(tx.logs[0].args.newState.toNumber(),2,"Token0 set transfers has failed");
                 return token0.transfer(user1,50, {from:user0});
             })
             .catch(error => {
@@ -86,10 +86,10 @@ contract('Token interaction contract', function(accounts) {
             .then(newVersion=> {
                 console.log("new version: " + newVersion.toNumber());
                 assert.isFalse(newVersion == 1,"New Token version must be different")
-                return token1.setTransfers(true, {from:devTeam});
+                return token1.setTransfers(2, {from:devTeam});
             })
             .then(tx => {
-                assert.strictEqual(tx.logs[0].args.newState,true,"Token0 set transfers has failed");
+                assert.strictEqual(tx.logs[0].args.newState.toNumber(),2,"Token0 set transfers has failed");
                 return token0.upgradeToken(token1.address, {from:devTeam});
             })
             .then(tx => {

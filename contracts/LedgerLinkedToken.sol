@@ -4,7 +4,7 @@ import "./BackendLedger.sol";
 import "./LedgerLinkedTokenInterface.sol";
 
 /**
- * @title BasicToken , Ownable, Transferable and implements LedgerLinkedTokenInterface 
+ * @title Linked Token BasicToken , Ownable, Transferable and implements LedgerLinkedTokenInterface 
  * @dev Updgradeable token, relaying on BackendLedger for balances and transfers
  */
 contract LedgerLinkedToken is LedgerLinkedTokenInterface
@@ -12,17 +12,17 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
     /**Ledger for the token */
     BackendLedger internal ledger;
     
-    /*Ledger address for the token */
+    /**Ledger address for the token */
     address public ledgerAddress;
     
-    /*Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token */
+    /**Holds the new upgraded token address for future qurries - if no address exist then this is the most up to date token */
     address public newUpgradedToken;
     
-    /*Holds token's properties */
+    /**Holds token's properties */
+    uint8 public decimals = 18;
     string public constant name = "BaXo Token";
     string public constant symbol = "BAXO";
     uint256 public version;
-    
     
     /** log upgrade events */
     event LogUpgrade(address oldToken,address newToken);
@@ -97,8 +97,7 @@ contract LedgerLinkedToken is LedgerLinkedTokenInterface
 
     // SafeMath.sub will throw if there is not enough balance.
     require(ledger.transferFrom(msg.sender,_to,_value));
-       
-    //Transfer(msg.sender, _to, _value);
+    
     return true;
   }
   
